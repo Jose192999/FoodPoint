@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <title>Login - FoodPoint</title>
+        <link rel="stylesheet" href="loginstyle.css">
+        <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    </head>
+    <body>
+        <div class="wrapper">
+            <form id="loginform">
+                <h1>Inicio de sesión</h1>
+                <!--Usuario-->
+                <div class="input-box">
+                    <input id="userID" type="text" placeholder="Usuario" 
+                    required>
+                    <i class='bxrds  bx-user'    ></i> 
+                </div>
+                <!--Contraseña-->
+                <div class="input-box">
+                    <input id="contraID" type="password" placeholder="Contraseña" 
+                    required>
+                    <i class='bxrds  bx-lock'    ></i> 
+                </div>
+                <!--Recordar-->
+                <div class="remember-forgot">
+                    <label><input type="checkbox"> Recuerdame
+                    </label>
+                    <a href="#">Olvidaste la contraseña?</a>
+                </div>
+                <!--Boton Inciar-->
+                <button type="submit" class="btn">Iniciar</button>
+                <div class="register-link">
+                    <p>No tienes cuenta?
+                        <a href="#">Registrate</a>
+                    </p>
+                </div>
+            </form>
+        </div>
+
+        <script src="login.js"></script>
+    </body>
+</html>

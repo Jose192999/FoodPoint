@@ -1,6 +1,19 @@
 body{
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: "Poppins", sans-serif;
     text-align: center;
-    background-color: #fafafa;
-    color: #333;
+    background-color: rgb(12, 118, 223);
+    color: #000000;
+    background: url(images/fondo.png);
 }
+
+.wrapper {
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, rgba(255, 255, 255, .2));
+    backdrop-filter: blur(20px);
+    box-shadow: 0 0 10px rgba(0, 0, 0, .2);
+    color: #000000;
+    border-radius: 10px;
+    
+}
+
+

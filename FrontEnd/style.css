@@ -8,12 +8,323 @@ body{
 
 .wrapper {
     background: transparent;
+    justify-content: center;
     border: 2px solid rgba(255, 255, 255, rgba(255, 255, 255, .2));
     backdrop-filter: blur(20px);
-    box-shadow: 0 0 10px rgba(0, 0, 0, .2);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     color: #000000;
     border-radius: 10px;
-    
 }
 
+.map-container {
+    position: relative;
+    width: 95%;
+    max-width: 850px;
+    height: 450px;
+    margin: 20px auto;
+    border: 8px solid #333;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+}
 
+#mapa-imagen {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
+
+.marcador {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    background: red;
+    border: 3px solid white;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(0, 0, 0, .5);
+    animation: pulso 1.5s infinite;
+}
+
+@keyframes pulso {
+    0% { box-shadow: 0 0 0 0 rgba(255,0,0,0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(255,0,0,0); }
+    100% { box-shadow: 0 0 0 0 rgba(255,0,0,0); }
+}
+
+.create-post {
+    max-width: 600px;
+    max-height: 600px;
+    margin: 30px auto;
+    padding: 20px;
+    background: rgb(255, 255, 255);
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+#craete-post-container{
+    display: none;
+}
+
+input, textarea, button {
+    width: 90% ;
+    padding: 14px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-family: "Poppins", sans-serif;
+    font-size: 16px;
+}
+
+button {
+    background: #ff6b35;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover { background: #e55a2b;}
+
+.info-marcador {
+    position: absolute;
+    background: white;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    max-width: 200px;
+    z-index: 100;
+    display: none;
+}
+
+.cerrar-info {
+    float: right;
+    cursor: pointer;
+    font-weight: bold;
+    color: red;
+}
+
+.marcador-temporal {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    background: #3a3131;
+    border: 3px solid white;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 10px rgba(81, 73, 73, 0.8);
+    animation: pulso-temporal 1.5s infinite;
+    z-index: 999;
+    pointer-events: none;
+}
+
+@keyframes pulso-temporal {
+    0% { box-shadow: 0 0 0 0 rgba(153, 146, 146, 0.8); }
+    70% { box-shadow: 0 0 0 16px rgba(255,0,0,0); }
+    100% { box-shadow: 0 0 0 0 rgba(255,0,0,0); }
+}
+
+.limpiar-todo {
+    margin-top: 20px;
+    padding: 20px;
+    background: #ffebee;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+#borrarMarcadores {
+    background: #d32f2f;
+    color: white;
+    padding: 16px 20px;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    width: 100%;
+    max-width: 600px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(211, 47, 47, 0.4);
+}
+
+#borrarMarcadores:hover {
+    background: #b71c1c;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(211, 47, 47, 0.5);
+}
+
+#borrarMarcadores:active {
+    transform: translateY(1px);
+}
+
+.limpiar-todo p {
+    font-size: 14px;
+    color: #666;
+    margin-top: 12px;
+    font-style: italic;
+}
+
+#btnPublicar {
+    background: #ff6b35;
+    color: white;
+    padding: 16px 20px;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    width: 100%;
+    max-width: 600px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(255, 107, 53, 0.4);
+    margin-top: 10px;
+}
+
+#btnPublicar:hover {
+    background: #e55a2b;
+    transform: translateY(-2px);
+    box-shadow: 0 8px rgba(255, 107, 53, 0.3);
+}
+
+#btnPublicar:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+}
+
+.formulario-flotante {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(8px);
+}
+
+.formulario-contenido {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+    position: relative;
+    animation: aparecer 0.4s ease;
+}
+
+@keyframes aparecer {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.cerrar-x {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 35px;
+    font-weight: bold;
+    color: #aaa;
+    cursor: pointer;
+    user-select: none;
+}
+
+.cerrar-x:hover {
+    color: #d32f2f;
+}
+
+.formulario-flotante.mostrar {
+    display: flex;
+}
+
+.foto-preview {
+    margin: 15px 0;
+    padding: 15px;
+    background: #f9f9f9;
+    border-radius: 12px;
+    text-align: center;
+    border: 2px dashed #ccc;
+}
+
+#fotoInput {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border: none;
+    background: white;
+    border-radius: 8px;
+}
+
+#vistaPrevia {
+    max-height: 80px;
+    max-width: 100%;
+    object-fit: cover;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.lista-puestos {
+    max-width: 850px;
+    margin: 40px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+.lista-puestos h2 {
+    margin-top: 0;
+    color: #333;
+    text-align: center;
+    font-size: 24px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #ff6b35;
+}
+
+#listaContenido {
+    display: grid;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.puesto-item {
+    display: flex;
+    align-items: center;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.puesto-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+.puesto-item img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-right: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.puesto-info h3 {
+    margin: 0 0 8px 0;
+    color: #ff6b35;
+    font-size: 18px;
+}
+
+.puesto-info p {
+    margin: 0;
+    color: #555;
+    font-size: 15px;
+}

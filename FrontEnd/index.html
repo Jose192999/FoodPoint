@@ -11,21 +11,44 @@
     </head>
     <!--Contenido de la pagina-->
     <body>
-        <!--Titulo de la pagina-->
-        <h1>Bienvenido a FoodPoint</h1>
-        <p>Tu punto de encuentro para buena comida</p>
-        
+        <div class="wrapper">
+            <!--Titulo de la pagina-->
+            <h1>Bienvenido a FoodPoint</h1>
+            <p>Tu punto de encuentro para buena comida</p>
+        </div>
         <!--Insercion del mapa-->
-        <iframe 
-         src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d1414.3315401899263!2d-116.9877622444232!3d32.52971868918739!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1ses!2smx!4v1761799908517!5m2!1ses!2smx" 
-         width="800" 
-         height="350" 
-         style="border:0;" 
-         allowfullscreen="" 
-         loading="lazy" 
-         referrerpolicy="no-referrer-when-downgrade"
-        ></iframe>
-
+        <div class="map-container">
+            <img src="images/mapatec2.png" id="mapa-imagen" alt="Mapa TEC"> 
+        </div>
+        <!--Formulario-->
+        <div id="formularioFlotante" class="formulario-flotante">
+            <div class="formulario-contenido">
+                <span id="cerrarFormulario" class="cerrar-x">×</span>
+                <h2>Publica tu comida aquí</h2>
+                <form id="postForm">
+                    <input type="text" id="name" placeholder="Que vas a vender hoy?: Tacos, burritos, ensalada..." required>
+                    <textarea id="description" placeholder="Describe tu producto: Tacos de birria 20$ de 12pm a 5pm" required></textarea>
+                    <!--fotos-->
+                    <div class="foto-preview" id="fotoPreview">
+                        <p><strong>Sube una foto de tu comida (esto es opcional)</strong></p>
+                        <input type="file" id="fotoInput" accept="image/*">
+                        <img id="vistaPrevia" src="" alt="Vista previa" style="display: none; max-width: 100%; margin: top 10px; border: radius 10px;">
+                    </div>
+                    <button type="submit" id="btnPublicar">Publicar en el mapa</button>
+                </form>
+            </div>
+        </div>
+        <!--Limpiar-->
+        <div class="create-post limpiar-todo">
+            <button type="button" id="borrarMarcadores">
+                Borrar todos los puestos
+            </button>
+        </div>
         <script src="script.js"></script>
+        <!--lista de puestos-->
+        <div class="lista-puestos">
+            <h2>Puestos activos</h2>
+            <div id="listaContenido"></div>
+        </div>
     </body>
 </html>

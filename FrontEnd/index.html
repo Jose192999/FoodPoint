@@ -3,24 +3,16 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <!--Titulo de la ventana-->
-        <title>
-            FoodPoint
-        </title>
+        <title>FoodPoint</title>
         <link rel="stylesheet" href="style.css">
     </head>
-    <!--Contenido de la pagina-->
     <body>
-        <div class="wrapper">
-            <!--Titulo de la pagina-->
-            <h1>Bienvenido a FoodPoint</h1>
-            <p>Tu punto de encuentro para buena comida</p>
+        <div class="logo-container">
+            <img src="images/logoletras.png" alt="FoodPoint Logo" class="logo">
         </div>
-        <!--Insercion del mapa-->
-        <div class="map-container">
-            <img src="images/mapatec2.png" id="mapa-imagen" alt="Mapa TEC"> 
-        </div>
-        <!--Formulario-->
+
+        <div id="map" class="mapa-real"></div>
+
         <div id="formularioFlotante" class="formulario-flotante">
             <div class="formulario-contenido">
                 <span id="cerrarFormulario" class="cerrar-x">×</span>
@@ -28,24 +20,26 @@
                 <form id="postForm">
                     <input type="text" id="name" placeholder="Que vas a vender hoy?: Tacos, burritos, ensalada..." required>
                     <textarea id="description" placeholder="Describe tu producto: Tacos de birria 20$ de 12pm a 5pm" required></textarea>
-                    <!--fotos-->
                     <div class="foto-preview" id="fotoPreview">
                         <p><strong>Sube una foto de tu comida (esto es opcional)</strong></p>
                         <input type="file" id="fotoInput" accept="image/*">
-                        <img id="vistaPrevia" src="" alt="Vista previa" style="display: none; max-width: 100%; margin: top 10px; border: radius 10px;">
+                        <img id="vistaPrevia" src="" alt="Vista previa" style="display: none; max-width: 100%; margin-top: 10px; border-radius: 10px;">
                     </div>
                     <button type="submit" id="btnPublicar">Publicar en el mapa</button>
                 </form>
             </div>
         </div>
-        <!--Limpiar-->
+
         <div class="create-post limpiar-todo">
             <button type="button" id="borrarMarcadores">
                 Borrar todos los puestos
             </button>
         </div>
+
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
         <script src="script.js"></script>
-        <!--lista de puestos-->
+
         <div class="lista-puestos">
             <h2>Puestos activos</h2>
             <div id="listaContenido"></div>

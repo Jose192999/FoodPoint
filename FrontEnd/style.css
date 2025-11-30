@@ -1,19 +1,11 @@
 body{
     font-family: "Poppins", sans-serif;
     text-align: center;
-    background-color: rgb(12, 118, 223);
     color: #000000;
-    background: url(images/fondo.png);
-}
-
-.wrapper {
-    background: transparent;
-    justify-content: center;
-    border: 2px solid rgba(255, 255, 255, rgba(255, 255, 255, .2));
-    backdrop-filter: blur(20px);
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    color: #000000;
-    border-radius: 10px;
+    padding: 0;
+    min-height: 100vh;
+    background: url(images/fondo2.png) no-repeat center center fixed;
+    background-size: cover;
 }
 
 .map-container {
@@ -327,4 +319,54 @@ button:hover { background: #e55a2b;}
     margin: 0;
     color: #555;
     font-size: 15px;
+}
+
+.mapa-real {
+    width: 95%;
+    max-width: 900px;
+    height: 480px;
+    margin: 20px auto;
+    border: 8px solid #333;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+    z-index: 1;
+}
+
+.custom-marker {
+    background: red;
+    width: 26px;
+    height: 26px;
+    border: 4px solid white;
+    border-radius: 50%;
+    box-shadow: 0 0 15px rgba(255,0,0,0.9);
+    animation: pulso 1.6s infinite;
+}
+
+/* LOGO ARRIBA CENTRADO */
+.logo-container {
+    text-align: center;
+    padding: 20px 10px 10px;
+    background: rgba(255, 255, 255, 0.1);
+    margin-bottom: 10px;
+}
+
+.logo {
+    height: 90px;           /* ← cambia este número si quieres más grande o chico */
+    width: auto;
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    border: 4px solid white;
+    transition: transform 0.3s ease;
+}
+
+.logo:hover {
+    transform: scale(1.08);
+}
+
+/* Para celular queda perfecto */
+@media (max-width: 600px) {
+    .logo {
+        height: 70px;
+    }
 }

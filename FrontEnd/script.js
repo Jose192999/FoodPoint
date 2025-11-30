@@ -1,36 +1,33 @@
-console.log("FoodPoint");
+console.log("FoodPoint con SQL Server");
 
 let map;
 let clicLatLng = null;
 let marcadorTemporal = null;
 let fotoBase64 = null;
-let miMarcador = null;   // puntito azul
+let miMarcador = null;
 
 document.addEventListener("DOMContentLoaded", function () {
 
-    // 1. PRIMERO CREAMOS EL MAPA
-    map = L.map('map').setView([32.52953165154265, -116.98741844848874], 17);
+    // CREAR MAPA
+    map = L.map('map').setView([32.5295, -116.9874], 17);
 
-    L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; Stadia Maps',
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
         maxZoom: 20
     }).addTo(map);
 
-    // 2. CARGAMOS MARCADORES GUARDADOS
+    // CARGAR PUESTOS DESDE SQL SERVER AL INICIAR
     cargarMarcadores();
 
-    // 3. AHORA SÍ: UBICACIÓN AUTOMÁTICA (después de crear el mapa)
+    // UBICACIÓN AUTOMÁTICA
     intentarUbicacion();
 
-    // 4. CLIC EN EL MAPA
+    // CLIC EN EL MAPA
     map.on('click', function (e) {
         clicLatLng = e.latlng;
         if (marcadorTemporal) marcadorTemporal.remove();
         marcadorTemporal = L.circleMarker(e.latlng, {
-            radius: 14,
-            color: '#ff0000',
-            fillOpacity: 0.8,
-            weight: 5
+            radius: 14, color: '#ff0000', fillOpacity: 0.8, weight: 5
         }).addTo(map);
         document.getElementById('formularioFlotante').classList.add('mostrar');
     });
@@ -43,13 +40,9 @@ document.addEventListener("DOMContentLoaded", function () {
             pos => {
                 const lat = pos.coords.latitude;
                 const lng = pos.coords.longitude;
-
-                // Ahora sí: el mapa YA existe → podemos moverlo
                 map.setView([lat, lng], 18);
 
-                // Quitar marcador anterior si existe
                 if (miMarcador) miMarcador.remove();
-
                 const iconoAzul = L.divIcon({
                     html: '<div style="background:#4285f4;width:22px;height:22px;border-radius:50%;border:3px solid white;box-shadow:0 0 0 4px rgba(66,133,244,0.4);animation:pulso-ubicacion 2s infinite;"></div>',
                     iconSize: [28, 28],
@@ -58,18 +51,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 miMarcador = L.marker([lat, lng], { icon: iconoAzul, zIndexOffset: 1000 })
                     .addTo(map)
-                    .bindPopup("<b style='color:#4285f4;'>¡Estás aquí!</b>")
+                    .bindPopup("¡Estás aquí!")
                     .openPopup();
             },
-            error => {
-                console.log("Ubicación rechazada o no disponible");
-                // Si falla, se queda en el TEC (ya está por defecto)
-            },
-            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            () => console.log("Ubicación rechazada")
         );
     }
 
-    // ==================== TODAS LAS DEMÁS FUNCIONES (igual que antes) ====================
+    // ==================== CREAR MARCADOR VISUAL ====================
     function crearMarcadorVisual(lat, lng, nombre, descripcion, foto = null) {
         const icono = L.divIcon({
             html: '<div class="custom-marker"></div>',
@@ -82,71 +71,81 @@ document.addEventListener("DOMContentLoaded", function () {
         marker.bindPopup(contenido, { maxWidth: 280 });
     }
 
-    function guardarMarcador(lat, lng, nombre, descripcion, foto = null) {
-        const marcadores = JSON.parse(localStorage.getItem('FoodPoint_marcadores') || '[]');
-        marcadores.push({ lat, lng, nombre, descripcion, foto });
-        localStorage.setItem('FoodPoint_marcadores', JSON.stringify(marcadores));
-        actualizarLista();
+    // ==================== GUARDAR EN SQL SERVER ====================
+    async function guardarMarcador(lat, lng, nombre, descripcion, foto = null) {
+        try {
+            await fetch('http://localhost:3000/puestos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ lat, lng, nombre, descripcion, foto })
+            });
+            // RECARGAR MAPA Y LISTA DESPUÉS DE GUARDAR
+            cargarMarcadores();
+        } catch (err) {
+            alert("Error al guardar");
+        }
     }
 
-    function cargarMarcadores() {
+    // CARGAR DESDE MONGODB (limpia y vuelve a dibujar todo)
+    async function cargarMarcadores() {
+        // Limpiar marcadores antiguos (excepto el puntito azul)
         map.eachLayer(l => {
-            if (l instanceof L.Marker && l !== miMarcador) map.removeLayer(l);
-            if (l instanceof L.CircleMarker) map.removeLayer(l);
+            if ((l instanceof L.Marker && l !== miMarcador) || l instanceof L.CircleMarker) {
+                map.removeLayer(l);
+            }
         });
-        const marcadores = JSON.parse(localStorage.getItem('FoodPoint_marcadores') || '[]');
-        marcadores.forEach(m => crearMarcadorVisual(m.lat, m.lng, m.nombre, m.descripcion, m.foto));
-        actualizarLista();
+
+        try {
+            const res = await fetch('http://localhost:3000/puestos');
+            const puestos = await res.json();
+
+            puestos.forEach(p => {
+                crearMarcadorVisual(p.lat, p.lng, p.nombre, p.descripcion, p.foto);
+            });
+
+            // ACTUALIZAR LA LISTA DE ABAJO
+            actualizarLista(puestos);
+        } catch (err) {
+            console.log("Backend apagado");
+        }
     }
 
-    function actualizarLista() {
+    // NUEVA FUNCIÓN PARA ACTUALIZAR LA LISTA
+    function actualizarLista(puestos) {
         const lista = document.getElementById('listaContenido');
         lista.innerHTML = '';
-        const marcadores = JSON.parse(localStorage.getItem('FoodPoint_marcadores') || '[]');
-        if (marcadores.length === 0) {
-            lista.innerHTML = '<p style="text-align:center;color:#999;padding:50px;font-size:18px;">No hay puestos aún<br>Haz clic en el mapa para agregar el primero</p>';
+
+        if (puestos.length === 0) {
+            lista.innerHTML = '<p style="text-align:center;color:#999;padding:50px;">No hay puestos aún<br>Haz clic en el mapa para agregar uno</p>';
             return;
         }
-        marcadores.forEach(m => {
-            lista.innerHTML += `<div class="puesto-item">
-                ${m.foto ? `<img src="${m.foto}" alt="${m.nombre}">` : '<div style="width:80px;height:80px;background:#eee;border-radius:12px;"></div>'}
-                <div class="puesto-info"><h3>${m.nombre}</h3><p>${m.descripcion}</p></div>
-            </div>`;
+
+        puestos.forEach(p => {
+            lista.innerHTML += `
+                <div class="puesto-item">
+                    ${p.foto ? `<img src="${p.foto}" alt="${p.nombre}">` : '<div style="width:80px;height:80px;background:#eee;border-radius:12px;"></div>'}
+                    <div class="puesto-info">
+                        <h3>${p.nombre}</h3>
+                        <p>${p.descripcion}</p>
+                    </div>
+                </div>`;
         });
     }
 
-    // Formulario, foto, borrar todo… (todo igual que antes)
-    document.getElementById('cerrarFormulario').onclick = () => {
-        document.getElementById('formularioFlotante').classList.remove('mostrar');
-        if (marcadorTemporal) marcadorTemporal.remove();
-        marcadorTemporal = null;
-        clicLatLng = null;
-    };
-
-    document.getElementById('formularioFlotante').onclick = e => {
-        if (e.target === e.currentTarget) {
-            document.getElementById('formularioFlotante').classList.remove('mostrar');
-            if (marcadorTemporal) marcadorTemporal.remove();
-            marcadorTemporal = null;
-            clicLatLng = null;
-        }
-    };
-
-    document.getElementById('postForm').onsubmit = e => {
+    document.getElementById('postForm').onsubmit = async e => {
         e.preventDefault();
         const nombre = document.getElementById('name').value.trim();
         const desc = document.getElementById('description').value.trim();
         if (!nombre || !desc || !clicLatLng) return alert("Faltan datos");
 
-        crearMarcadorVisual(clicLatLng.lat, clicLatLng.lng, nombre, desc, fotoBase64);
-        guardarMarcador(clicLatLng.lat, clicLatLng.lng, nombre, desc, fotoBase64);
+        await guardarMarcador(clicLatLng.lat, clicLatLng.lng, nombre, desc, fotoBase64);
 
+        // Limpiar formulario
         e.target.reset();
         document.getElementById('vistaPrevia').style.display = 'none';
         fotoBase64 = null;
         if (marcadorTemporal) marcadorTemporal.remove();
         document.getElementById('formularioFlotante').classList.remove('mostrar');
-        actualizarLista();
     };
 
     document.getElementById('fotoInput').onchange = e => {
@@ -162,8 +161,22 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     };
 
-    document.getElementById('borrarMarcadores').onclick = () => {
-        localStorage.removeItem('FoodPoint_marcadores');
-        cargarMarcadores();
+    document.getElementById('cerrarFormulario').onclick = () => {
+        document.getElementById('formularioFlotante').classList.remove('mostrar');
+        if (marcadorTemporal) marcadorTemporal.remove();
+        marcadorTemporal = null;
+        clicLatLng = null;
+    };
+
+    // ==================== BORRAR TODO ====================
+    document.getElementById('borrarMarcadores').onclick = async () => {
+        if (confirm("¿Borrar TODOS los puestos de la base de datos?")) {
+            try {
+                await fetch('http://localhost:3000/puestos', { method: 'DELETE' });
+                cargarMarcadores();
+            } catch (err) {
+                alert("Error al borrar");
+            }
+        }
     };
 });

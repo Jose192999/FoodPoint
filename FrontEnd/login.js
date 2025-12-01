@@ -1,16 +1,19 @@
-document.getElementById("loginform").addEventListener("submit", function(event) 
-{
+//verificar usuario
+document.getElementById("loginform").addEventListener("submit", function(event) {
     event.preventDefault(); 
-    
-    const user = document.getElementById("userID").value;
+
+    const user = document.getElementById("userID").value.trim();
     const pass = document.getElementById("contraID").value;
 
-    const userPrueba = "jose";
-    const contraPrueba = "1234";
-
-    if (user === userPrueba && pass === contraPrueba) {
+    if (user === "usuario" && pass === "1234") {
+        window.location.href = "indexUser.html"; 
+    }
+    else if (user === "jose" && pass === "joseluis89") {
         window.location.href = "index.html";  
-    } else {
+    }
+    else {
         alert("Usuario o contraseña incorrectos");
+        document.getElementById("userID").value = "";
+        document.getElementById("contraID").value = "";
     }
 });

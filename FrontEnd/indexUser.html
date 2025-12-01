@@ -7,13 +7,13 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
+    <!--logo-->
     <div class="logo-container">
         <img src="images/logoletras.png" alt="FoodPoint Logo" class="logo">
     </div>
-
+    <!--Mapa-->
     <div id="map" class="mapa-real"></div>
-
+    <!--Formulario-->
     <div id="formularioFlotante" class="formulario-flotante">
         <div class="formulario-contenido">
             <span id="cerrarFormulario" class="cerrar-x">×</span>
@@ -30,16 +30,12 @@
             </form>
         </div>
     </div>
-
-    <div class="create-post limpiar-todo">
-        <button type="button" id="borrarMarcadores">Borrar todos los puestos</button>
-    </div>
-
+    <!--Lista de puestos-->
     <div class="lista-puestos">
         <h2>Puestos activos</h2>
         <div id="listaContenido"></div>
     </div>
-
+    <!--Conexion con el mapa Leaflet-->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="script.js"></script>

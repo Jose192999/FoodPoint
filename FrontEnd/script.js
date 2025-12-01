@@ -1,146 +1,128 @@
-console.log("FoodPoint con SQL Server");
-
 let map;
 let clicLatLng = null;
 let marcadorTemporal = null;
 let fotoBase64 = null;
 let miMarcador = null;
+let marcadoresConInfo = [];  // { marker, id }
 
 document.addEventListener("DOMContentLoaded", function () {
 
-    // CREAR MAPA
     map = L.map('map').setView([32.5295, -116.9874], 17);
-
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors',
-        maxZoom: 20
+        attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    // CARGAR PUESTOS DESDE SQL SERVER AL INICIAR
     cargarMarcadores();
-
-    // UBICACIÓN AUTOMÁTICA
     intentarUbicacion();
 
-    // CLIC EN EL MAPA
-    map.on('click', function (e) {
+    map.on('click', e => {
         clicLatLng = e.latlng;
         if (marcadorTemporal) marcadorTemporal.remove();
-        marcadorTemporal = L.circleMarker(e.latlng, {
-            radius: 14, color: '#ff0000', fillOpacity: 0.8, weight: 5
-        }).addTo(map);
+        marcadorTemporal = L.circleMarker(e.latlng, { radius: 14, color: '#ff0000', fillOpacity: 0.8, weight: 5 }).addTo(map);
         document.getElementById('formularioFlotante').classList.add('mostrar');
     });
 
-    // ==================== UBICACIÓN AUTOMÁTICA ====================
     function intentarUbicacion() {
         if (!navigator.geolocation) return;
-
-        navigator.geolocation.getCurrentPosition(
-            pos => {
-                const lat = pos.coords.latitude;
-                const lng = pos.coords.longitude;
-                map.setView([lat, lng], 18);
-
-                if (miMarcador) miMarcador.remove();
-                const iconoAzul = L.divIcon({
-                    html: '<div style="background:#4285f4;width:22px;height:22px;border-radius:50%;border:3px solid white;box-shadow:0 0 0 4px rgba(66,133,244,0.4);animation:pulso-ubicacion 2s infinite;"></div>',
-                    iconSize: [28, 28],
-                    className: ''
-                });
-
-                miMarcador = L.marker([lat, lng], { icon: iconoAzul, zIndexOffset: 1000 })
-                    .addTo(map)
-                    .bindPopup("¡Estás aquí!")
-                    .openPopup();
-            },
-            () => console.log("Ubicación rechazada")
-        );
-    }
-
-    // ==================== CREAR MARCADOR VISUAL ====================
-    function crearMarcadorVisual(lat, lng, nombre, descripcion, foto = null) {
-        const icono = L.divIcon({
-            html: '<div class="custom-marker"></div>',
-            iconSize: [30, 30],
-            className: ''
+        navigator.geolocation.getCurrentPosition(pos => {
+            map.setView([pos.coords.latitude, pos.coords.longitude], 18);
+            if (miMarcador) miMarcador.remove();
+            miMarcador = L.marker([pos.coords.latitude, pos.coords.longitude], {
+                icon: L.divIcon({
+                    html: '<div style="background:#4285f4;width:22px;height:22px;border-radius:50%;border:3px solid white;box-shadow:0 0 0 4px rgba(66,133,244,0.4);"></div>',
+                    iconSize: [28,28], className: ''
+                })
+            }).addTo(map).bindPopup("¡Estás aquí!").openPopup();
         });
-        const marker = L.marker([lat, lng], { icon: icono }).addTo(map);
-        let contenido = `<b style="font-size:18px;color:#ff6b35;">${nombre}</b><br>${descripcion}`;
-        if (foto) contenido += `<br><img src="${foto}" style="width:100%;max-width:220px;border-radius:12px;margin-top:10px;">`;
-        marker.bindPopup(contenido, { maxWidth: 280 });
     }
 
-    // ==================== GUARDAR EN SQL SERVER ====================
+    function crearMarcadorVisual(lat, lng, nombre, descripcion, foto = null) {
+        const marker = L.marker([lat, lng], {
+            icon: L.divIcon({ html: '<div class="custom-marker"></div>', iconSize: [30,30], className: '' })
+        }).addTo(map);
+        let popup = `<b style="font-size:18px;color:#ff6b35;">${nombre}</b><br>${descripcion}`;
+        if (foto) popup += `<br><img src="${foto}" style="width:100%;max-width:220px;border-radius:12px;margin-top:10px;">`;
+        marker.bindPopup(popup, {maxWidth: 280});
+        return marker;
+    }
+
     async function guardarMarcador(lat, lng, nombre, descripcion, foto = null) {
         try {
             await fetch('http://localhost:3000/puestos', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ lat, lng, nombre, descripcion, foto })
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({lat, lng, nombre, descripcion, foto})
             });
-            // RECARGAR MAPA Y LISTA DESPUÉS DE GUARDAR
             cargarMarcadores();
-        } catch (err) {
-            alert("Error al guardar");
-        }
+        } catch { alert("Error al guardar"); }
     }
 
-    // CARGAR DESDE MONGODB (limpia y vuelve a dibujar todo)
     async function cargarMarcadores() {
-        // Limpiar marcadores antiguos (excepto el puntito azul)
         map.eachLayer(l => {
-            if ((l instanceof L.Marker && l !== miMarcador) || l instanceof L.CircleMarker) {
-                map.removeLayer(l);
-            }
+            if ((l instanceof L.Marker && l !== miMarcador) || l instanceof L.CircleMarker) map.removeLayer(l);
         });
+        marcadoresConInfo = [];
 
         try {
             const res = await fetch('http://localhost:3000/puestos');
             const puestos = await res.json();
 
             puestos.forEach(p => {
-                crearMarcadorVisual(p.lat, p.lng, p.nombre, p.descripcion, p.foto);
+                const marker = crearMarcadorVisual(p.lat, p.lng, p.nombre, p.descripcion, p.foto);
+                marcadoresConInfo.push({ marker: marker, id: p._id });
             });
 
-            // ACTUALIZAR LA LISTA DE ABAJO
             actualizarLista(puestos);
+
         } catch (err) {
             console.log("Backend apagado");
         }
     }
 
-    // NUEVA FUNCIÓN PARA ACTUALIZAR LA LISTA
+    // LISTA CON BOTONES REALES (ESTO SÍ FUNCIONA)
     function actualizarLista(puestos) {
-        const lista = document.getElementById('listaContenido');
-        lista.innerHTML = '';
+    const lista = document.getElementById('listaContenido');
+    lista.innerHTML = '';
 
-        if (puestos.length === 0) {
-            lista.innerHTML = '<p style="text-align:center;color:#999;padding:50px;">No hay puestos aún<br>Haz clic en el mapa para agregar uno</p>';
-            return;
-        }
-
-        puestos.forEach(p => {
-            lista.innerHTML += `
-                <div class="puesto-item">
-                    ${p.foto ? `<img src="${p.foto}" alt="${p.nombre}">` : '<div style="width:80px;height:80px;background:#eee;border-radius:12px;"></div>'}
-                    <div class="puesto-info">
-                        <h3>${p.nombre}</h3>
-                        <p>${p.descripcion}</p>
-                    </div>
-                </div>`;
-        });
+    if (puestos.length === 0) {
+        lista.innerHTML = '<p style="text-align:center;color:#999;padding:50px;">No hay puestos aún<br>Haz clic en el mapa para agregar uno</p>';
+        return;
     }
 
+    puestos.forEach(puesto => {
+        const info = marcadoresConInfo.find(m => m.id === puesto._id);
+        if (!info) return;
+
+        const div = document.createElement('div');
+        div.className = 'puesto-item';  // ← vuelve al estilo original
+        div.style.cursor = 'pointer';
+
+        div.innerHTML = `
+            ${puesto.foto ? `<img src="${puesto.foto}" alt="${puesto.nombre}">` : '<div style="width:80px;height:80px;background:#eee;border-radius:12px;"></div>'}
+            <div class="puesto-info">
+                <h3>${puesto.nombre}</h3>
+                <p>${puesto.descripcion}</p>
+            </div>
+            <span style="margin-left:auto;color:#ff6b35;font-weight:bold;">Ver en mapa →</span>
+        `;
+
+        // EL CLICK QUE NUNCA FALLA
+        div.onclick = () => {
+            map.flyTo([puesto.lat, puesto.lng], 19, { duration: 1.0 });
+            setTimeout(() => info.marker.openPopup(), 600);
+        };
+
+        lista.appendChild(div);
+    });
+}
+
+    // FORMULARIO Y DEMÁS
     document.getElementById('postForm').onsubmit = async e => {
         e.preventDefault();
         const nombre = document.getElementById('name').value.trim();
         const desc = document.getElementById('description').value.trim();
         if (!nombre || !desc || !clicLatLng) return alert("Faltan datos");
-
         await guardarMarcador(clicLatLng.lat, clicLatLng.lng, nombre, desc, fotoBase64);
-
-        // Limpiar formulario
         e.target.reset();
         document.getElementById('vistaPrevia').style.display = 'none';
         fotoBase64 = null;
@@ -164,19 +146,14 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById('cerrarFormulario').onclick = () => {
         document.getElementById('formularioFlotante').classList.remove('mostrar');
         if (marcadorTemporal) marcadorTemporal.remove();
-        marcadorTemporal = null;
-        clicLatLng = null;
+        marcadorTemporal = null; clicLatLng = null;
     };
 
-    // ==================== BORRAR TODO ====================
     document.getElementById('borrarMarcadores').onclick = async () => {
-        if (confirm("¿Borrar TODOS los puestos de la base de datos?")) {
-            try {
-                await fetch('http://localhost:3000/puestos', { method: 'DELETE' });
-                cargarMarcadores();
-            } catch (err) {
-                alert("Error al borrar");
-            }
+        if (confirm("¿Borrar TODOS los puestos?")) {
+            await fetch('http://localhost:3000/puestos', {method: 'DELETE'});
+            cargarMarcadores();
         }
     };
+
 });

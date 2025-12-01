@@ -3,7 +3,7 @@
 Nos permite explorar restaurantes, puestos de comida rapida, ver menus, etc.
 
 #Caracteristicas principales
--Integracion de Google Maps
+-Integracion de Maps
 -Buscar comida cercana
 
 #Tecnologias utilizadas
@@ -12,6 +12,8 @@ Nos permite explorar restaurantes, puestos de comida rapida, ver menus, etc.
 -JavaScript
 -VS code
 -GitHub
+-Node.js
+-MongoDB
 
 #Como ejecutar el proyecto?
 una vez creada tu cuenta de github y enlazada a tu computadora realiza lo siguiente:
@@ -27,7 +29,18 @@ una vez creada tu cuenta de github y enlazada a tu computadora realiza lo siguie
 
 #Estructura actual del proyecto
 FoodPoint/
- -index.html ---Pagina principal
- -style.css  ---Estilo de la pagina
- -script.js  ---Logica 
- -README.md  ---Documentacion del proyecto
+    -FrontEnd/
+         -index.html ---Pagina solo para administradores
+         -style.css  ---Estilo de la pagina
+         -script.js  ---Logica 
+         -bienvenida.html ---Es la pagina de incio
+         -bienvenida.css  ---Estilo de la pagina de incio
+         -indexUser.html  ---Pagina solo para usuarios
+         -login.html      ---Pagina de login
+         -loginstyle.css  ---Estilo de login
+         -login.js        ---Logica de login
+    -BackEnd/
+         -node_modules/   ---Modulos de node
+         -package.json    ---Ayuda con la conexion del servidor
+         -server.js       ---Conexion con mongo + sentencias
+    -README.md  ---Documentacion del proyecto

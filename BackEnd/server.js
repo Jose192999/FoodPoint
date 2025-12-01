@@ -38,7 +38,7 @@ app.get('/puestos', async (req, res) => {
 // POST nuevo
 app.post('/puestos', async (req, res) => {
   try {
-    console.log("RECIBIENDO NUEVO PUESTO:", req.body.nombre); // ESTE LOG ES LA CLAVE
+    console.log("RECIBIENDO NUEVO PUESTO:", req.body.nombre); 
     const nuevo = new Puesto(req.body);
     await nuevo.save();
     console.log("PUESTO GUARDADO EN ATLAS:", nuevo._id);
